@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>82MAJOR 노래 소트</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    #compare-container {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 50px;
+    }
+    .song-box {
+      border: 2px solid black;
+      padding: 30px 50px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .song-box:hover {
+      background-color: #f0f0f0;
+    }
+    #result {
+      margin-top: 40px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>82MAJOR 노래 소트</h1>
+  <p>음원 사이트+사클+콘서트 곡</p>
+
+  <div id="compare-container">
+    <div id="left-song" class="song-box">노래 1</div>
+    <div id="right-song" class="song-box">노래 2</div>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    // 노래 목록
+    const songs = [
+      "FIRST CLASS",
+      "Sure Thing",
+      "촉",
+      "Birthday",
+      "Illegal",
+      "82",
+      "혀끝",
+      "가시밭길도 괜찮아",
+      "Face Time",
+      "Gossip",
+      "뭘 봐",
+      "영웅호걸",
+      "Passport",
+      "Promise You",
+      "쳐다봐요",
+      "과열",
+      "2AM Drive",
+      "Monster",
+      "Summer Love",
+      "말해뭐해",
+      "누나",
+      "1989",
+      "의심스러워",
+      "Say more",
+      "10 Minutes",
+      "내꺼"
+    ];
+
+    // 머지소트 기반 소트 구현
+    async function mergeSort(arr) {
+      if (arr.length <= 1) return arr;
+      
+      const mid = Math.floor(arr.length / 2);
+      const left = await mergeSort(arr.slice(0, mid));
+      const right = await mergeSort(arr.slice(mid));
+      
+      return await merge(left, right);
+    }
+
+    // 두 노래 비교 함수
+    function compareSongs(leftSong, rightSong) {
+      return new Promise(resolve => {
+        const leftElem = document.getElementById('left-song');
+        const rightElem = document.getElementById('right-song');
+
+        leftElem.innerText = leftSong;
+        rightElem.innerText = rightSong;
+
+        // 클릭 이벤트 등록
+        function chooseLeft() {
+          cleanup();
+          resolve(leftSong);
+        }
+        function chooseRight() {
+          cleanup();
+          resolve(rightSong);
+        }
+
+        // 이벤트 리스너 제거 함수
+        function cleanup() {
+          leftElem.removeEventListener('click', chooseLeft);
+          rightElem.removeEventListener('click', chooseRight);
+        }
+
+        // 이전 이벤트가 있을 수 있으므로 cleanup 호출
+        cleanup();
+        leftElem.addEventListener('click', chooseLeft);
+        rightElem.addEventListener('click', chooseRight);
+      });
+    }
+
+    // 두 배열 병합하는 함수
+    async function merge(leftArr, rightArr) {
+      let merged = [];
+      let i = 0, j = 0;
+      while (i < leftArr.length && j < rightArr.length) {
+        const choice = await compareSongs(leftArr[i], rightArr[j]);
+        if (choice === leftArr[i]) {
+          merged.push(leftArr[i]);
+          i++;
+        } else {
+          merged.push(rightArr[j]);
+          j++;
+        }
+      }
+
+      // 남은 요소들 병합
+      while (i < leftArr.length) merged.push(leftArr[i++]);
+      while (j < rightArr.length) merged.push(rightArr[j++]);
+      return merged;
+    }
+
+    // 소트 시작 함수
+    async function startSort() {
+      document.getElementById('result').innerText = '';
+      const sorted = await mergeSort(songs);
+      document.getElementById('compare-container').style.display = 'none';
+
+      // 최종 순위 출력
+      let html = '<h2>최종 순위</h2><ol>';
+      for (let i = 0; i < sorted.length; i++) {
+        html += `<li>${sorted[i]}</li>`;
+      }
+      html += '</ol>';
+      document.getElementById('result').innerHTML = html;
+    }
+
+    // 소트 시작
+    startSort();
+  </script>
+
+</body>
+</html>
